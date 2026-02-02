@@ -1,0 +1,7 @@
+flask
+flask-cors
+requests
+python-whois
+dnspython
+openpyxl
+beautifulsoup4

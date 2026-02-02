@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Finder Pro - Tìm Domain Có Traffic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .form-section input,
+        .form-section select,
+        .form-section textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .form-section input:focus,
+        .form-section select:focus,
+        .form-section textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-section textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        .form-section small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .tld-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .tld-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tld-checkbox:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .tld-checkbox input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        .tld-checkbox.checked {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+
+        .range-slider {
+            margin-top: 10px;
+        }
+
+        .range-value {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.2em;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .progress-section {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .progress-section.active {
+            display: block;
+        }
+
+        .progress-bar-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .progress-info {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .current-domain {
+            font-size: 1.1em;
+            color: #667eea;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .results-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .results-header h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .results-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .stat-card .number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 0.85em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .domain-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+
+        .domain-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .domain-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .domain-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            word-break: break-word;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .domain-rank {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .domain-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .metric-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+            word-break: break-word;
+        }
+
+        .metric-label {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .buy-btn {
+            background: #27ae60;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .buy-btn:hover {
+            background: #229954;
+            transform: scale(1.05);
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(39, 174, 96, 0.4);
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+        }
+
+        .keyword-suggestions {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            display: none;
+        }
+
+        .keyword-suggestions.active {
+            display: block;
+        }
+
+        .keyword-suggestions h4 {
+            margin-bottom: 10px;
+            color: #667eea;
+            font-size: 0.95em;
+        }
+
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .suggestion-chip {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid #667eea;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .suggestion-chip:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .suggestion-chip.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        .suggest-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .suggest-btn:hover {
+            background: #764ba2;
+            transform: scale(1.05);
+        }
+
+        .suggestion-loader {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+        }
+
+        .mode-option {
+            flex: 1;
+            padding: 20px;
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .mode-option:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .mode-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f0f3ff 0%, #f8f9ff 100%);
+        }
+
+        .mode-option h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .mode-option p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .c99-section {
+            display: none;
+        }
+
+        .c99-section.active {
+            display: block;
+        }
+
+        .c99-tld-select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            margin-bottom: 15px;
+        }
+
+        .fetch-c99-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.3s;
+        }
+
+        .fetch-c99-btn:hover {
+            background: #229954;
+            transform: scale(1.05);
+        }
+
+        .c99-results {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f9f4;
+            border-radius: 10px;
+            border: 2px solid #27ae60;
+            display: none;
+        }
+
+        .c99-results.active {
+            display: block;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .results-stats {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 8px;
+            }
+
+            .stat-card .number {
+                font-size: 1.5em;
+            }
+
+            .stat-card .label {
+                font-size: 0.75em;
+            }
+
+            .domain-card {
+                padding: 15px;
+            }
+
+            .domain-header {
+                flex-wrap: wrap;
+            }
+
+            .domain-name {
+                font-size: 1.1em;
+                min-width: 150px;
+                flex-basis: 100%;
+                margin-bottom: 10px;
+            }
+
+            .domain-rank {
+                font-size: 0.8em;
+                padding: 5px 10px;
+            }
+
+            .domain-metrics {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 8px;
+            }
+
+            .metric-value {
+                font-size: 1.1em;
+            }
+
+            .metric-label {
+                font-size: 0.7em;
+            }
+
+            .buy-btn {
+                padding: 8px 15px;
+                font-size: 0.85em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stat-card .number {
+                font-size: 1.2em;
+            }
+
+            .domain-metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Domain Finder - Traffic Edition</h1>
+            <p>Fetch từ C99.NL → Chỉ hiển thị domains CÓ TRAFFIC → TRAFFIC CAO NHẤT LÊN ĐẦU 📈</p>
+            <p style="font-size: 0.95em; margin-top: 8px; opacity: 0.9;">⚡ Lọc: DR > 0 + Traffic > 0 (Chỉ domains có giá trị thật!)</p>
+        </div>
+
+        <div class="main-card">
+            <form id="searchForm">
+                <!-- C99 Section -->
+                <div class="form-section">
+                    <label>🌐 Bước 1: Chọn TLD để fetch domains từ C99.NL</label>
+                    <select id="c99Tld">
+                        <option value="ru.com">ru.com (Russia) 🔥 Khuyên dùng</option>
+                        <option value="sa.com">sa.com (Saudi Arabia) 🔥 Khuyên dùng</option>
+                        <option value="ca.com">ca.com (Canada) 🔥 Khuyên dùng</option>
+                        <option value="in.com">in.com (India)</option>
+                        <option value="za.com">za.com (South Africa)</option>
+                        <option value="br.com">br.com (Brazil)</option>
+                        <option value="uk.com">uk.com (United Kingdom)</option>
+                        <option value="de.com">de.com (Germany)</option>
+                        <option value="cn.com">cn.com (China)</option>
+                        <option value="eu.com">eu.com (Europe)</option>
+                        <option value="us.com">us.com (United States)</option>
+                        <option value="jp.com">jp.com (Japan)</option>
+                        <option value="kr.com">kr.com (Korea)</option>
+                    </select>
+                    <small>C99.NL có 5,000-10,000 domains/TLD. Nguồn: https://subdomainfinder.c99.nl/scans/</small>
+
+                    <button type="button" class="fetch-c99-btn" id="fetchC99Btn" style="margin-top: 15px;">
+                        📡 Fetch Domains từ C99.NL
+                    </button>
+
+                    <div class="c99-results" id="c99Results">
+                        <h4>✅ Đã fetch domains</h4>
+                        <p id="c99ResultsText"></p>
+                    </div>
+                </div>
+
+                <hr style="border: 1px solid #e0e0e0; margin: 30px 0;">
+
+                <div class="form-section">
+                    <label>🎯 Bước 2: Bắt đầu check</label>
+                    <div style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white; margin-bottom: 20px;">
+                        <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px;">
+                            ⚡ Tool sẽ check HẾT TẤT CẢ domains đã fetch!
+                        </div>
+                        <div style="opacity: 0.9;">
+                            📊 Hiển thị: TẤT CẢ domains có DR > 0 + Traffic > 0<br>
+                            ⏱️ Thời gian: ~0.7s/domain (bao gồm WHOIS check)<br>
+                            🔍 Kết quả: Tùy vào số domains có traffic trong list fetch được
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn" id="searchBtn">
+                    🚀 Bắt Đầu Check Tất Cả Domains (Bước 2)
+                </button>
+            </form>
+
+            <div class="progress-section" id="progressSection">
+                <div class="alert alert-info">
+                    <div class="progress-info">
+                        <div id="progressMessage">Đang khởi động...</div>
+                        <div class="current-domain" id="currentDomain"></div>
+                    </div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar">0%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h2>🎯 Kết Quả Tìm Kiếm</h2>
+                <p id="resultsSubtitle"></p>
+            </div>
+
+            <div class="results-stats" id="resultsStats"></div>
+
+            <div id="downloadSection" style="text-align: center; margin-bottom: 30px;"></div>
+
+            <div id="domainsList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let c99Domains = [];
+
+        // Fetch C99 Domains
+        document.getElementById('fetchC99Btn').addEventListener('click', async function() {
+            const tld = document.getElementById('c99Tld').value;
+            const resultsDiv = document.getElementById('c99Results');
+            const resultsText = document.getElementById('c99ResultsText');
+
+            // Show loading
+            this.disabled = true;
+            this.textContent = '⏳ Đang fetch từ C99.NL...';
+
+            try {
+                const response = await fetch('/api/fetch-c99-domains', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ tld: tld })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                // Store domains
+                c99Domains = data.domains || [];
+
+                // Show results
+                resultsDiv.classList.add('active');
+                resultsText.textContent = `✓ Đã lấy ${data.count.toLocaleString()} domains từ ${tld}. Click "Bắt Đầu" để check DR!`;
+
+                this.textContent = '✓ Đã Fetch - Click để refresh';
+
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            } finally {
+                this.disabled = false;
+            }
+        });
+
+        // TLD checkbox styling
+        document.querySelectorAll('.tld-checkbox').forEach(label => {
+            const checkbox = label.querySelector('input[type="checkbox"]');
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    label.classList.add('checked');
+                } else {
+                    label.classList.remove('checked');
+                }
+            });
+        });
+
+        // Form submission
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Check if domains fetched
+            if (c99Domains.length === 0) {
+                alert('⚠️ Vui lòng fetch domains từ C99.NL trước!\n\nClick "Fetch Domains từ C99.NL" ở Bước 1.');
+                return;
+            }
+
+            const requestBody = {
+                mode: 'c99',
+                c99_domains: c99Domains, // GỬI HẾT domains
+                keywords: '', // Dummy for backend
+                tlds: [document.getElementById('c99Tld').value],
+                max_check: c99Domains.length, // Check HẾT tất cả domains
+                min_dr: 1 // C99 mode: CHỈ HIỂN THỊ có DR > 0
+            };
+
+            // Disable form
+            document.getElementById('searchBtn').disabled = true;
+            document.getElementById('searchBtn').innerHTML = '<span class="spinner"></span> Đang Check DR...';
+
+            // Show progress
+            document.getElementById('progressSection').classList.add('active');
+            document.getElementById('resultsSection').classList.remove('active');
+
+            // Start search
+            try {
+
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert(data.error);
+                    resetForm();
+                    return;
+                }
+
+                // Start polling progress
+                pollProgress();
+
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+                resetForm();
+            }
+        });
+
+        function pollProgress() {
+            const interval = setInterval(async () => {
+                try {
+                    const response = await fetch('/api/progress');
+                    const data = await response.json();
+
+                    // Update progress bar
+                    const percent = data.total > 0 ? Math.round((data.current / data.total) * 100) : 0;
+                    document.getElementById('progressBar').style.width = percent + '%';
+                    document.getElementById('progressBar').textContent = percent + '%';
+                    document.getElementById('progressMessage').textContent = data.message;
+                    document.getElementById('currentDomain').textContent = data.current_domain || '';
+
+                    // REAL-TIME: Update results ngay khi có domains
+                    if (data.domains_found && data.domains_found.length > 0) {
+                        updateResultsRealtime(data);
+                    }
+
+                    // Check if completed
+                    if (data.status === 'completed') {
+                        clearInterval(interval);
+                        displayResults(data);
+                        resetForm();
+                    } else if (data.status === 'error') {
+                        clearInterval(interval);
+                        alert('Lỗi: ' + data.message);
+                        resetForm();
+                    }
+
+                } catch (error) {
+                    console.error('Error polling progress:', error);
+                }
+            }, 1000);
+        }
+
+        // REAL-TIME update khi đang check
+        function updateResultsRealtime(data) {
+            const domains = data.domains_found || [];
+
+            // Show results section (vẫn giữ progress)
+            document.getElementById('resultsSection').classList.add('active');
+
+            // Update subtitle với tổng số domains
+            const totalDomains = data.total || 0;
+            document.getElementById('resultsSubtitle').textContent =
+                `⚡ Đang tìm... ${domains.length}/${totalDomains} domains CÓ GIÁ TRỊ (Real-time) 🚀`;
+
+            // Stats - count by traffic and status type
+            const withTraffic = domains.filter(d => (d.organic_traffic || 0) > 0).length;
+            const withoutTraffic = domains.length - withTraffic;
+            const availableCount = domains.filter(d => d.status_type === 'available').length;
+            const pendingCount = domains.filter(d => d.status_type === 'pending_delete').length;
+            const redemptionCount = domains.filter(d => d.status_type === 'redemption').length;
+            const auctionCount = domains.filter(d => d.status_type === 'auction').length;
+            const registeredCount = domains.filter(d => d.status_type === 'registered').length;
+
+            const statsHtml = `
+                <div class="stat-card">
+                    <div class="number">${domains.length}/${totalDomains}</div>
+                    <div class="label">Có Giá Trị</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);">
+                    <div class="number" style="color: #3b82f6;">${withTraffic}</div>
+                    <div class="label" style="color: #2563eb;">🚀 Có Traffic</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);">
+                    <div class="number" style="color: #10b981;">${availableCount}</div>
+                    <div class="label" style="color: #059669;">✅ Available</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
+                    <div class="number" style="color: #f59e0b;">${pendingCount + redemptionCount}</div>
+                    <div class="label" style="color: #d97706;">⏳ Backorder</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);">
+                    <div class="number" style="color: #8b5cf6;">${auctionCount}</div>
+                    <div class="label" style="color: #7c3aed;">🔨 Auction</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);">
+                    <div class="number" style="color: #ef4444;">${registeredCount}</div>
+                    <div class="label" style="color: #dc2626;">🔒 Registered</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">${data.current || 0}/${totalDomains}</div>
+                    <div class="label">Đã Check</div>
+                </div>
+            `;
+            document.getElementById('resultsStats').innerHTML = statsHtml;
+
+            // Display domains (same as displayResults)
+            renderDomainsList(domains);
+        }
+
+        function displayResults(data) {
+            const domains = data.domains_found || [];
+
+            // Show results section
+            document.getElementById('resultsSection').classList.add('active');
+            document.getElementById('progressSection').classList.remove('active');
+
+            // Update subtitle với tổng số
+            const totalDomainsFinal = data.total || 0;
+            const withTrafficFinal = domains.filter(d => (d.organic_traffic || 0) > 0).length;
+            document.getElementById('resultsSubtitle').textContent =
+                `✅ Hoàn thành! Tìm thấy ${domains.length}/${totalDomainsFinal} domains CÓ GIÁ TRỊ (${withTrafficFinal} có traffic) 🚀`;
+
+            // Stats - count by traffic and status type
+            const withTraffic = domains.filter(d => (d.organic_traffic || 0) > 0).length;
+            const withoutTraffic = domains.length - withTraffic;
+            const availableCount = domains.filter(d => d.status_type === 'available').length;
+            const pendingCount = domains.filter(d => d.status_type === 'pending_delete').length;
+            const redemptionCount = domains.filter(d => d.status_type === 'redemption').length;
+            const auctionCount = domains.filter(d => d.status_type === 'auction').length;
+            const registeredCount = domains.filter(d => d.status_type === 'registered').length;
+
+            const statsHtml = `
+                <div class="stat-card">
+                    <div class="number">${domains.length}/${totalDomainsFinal}</div>
+                    <div class="label">Có Giá Trị</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);">
+                    <div class="number" style="color: #3b82f6;">${withTraffic}</div>
+                    <div class="label" style="color: #2563eb;">🚀 Có Traffic</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);">
+                    <div class="number" style="color: #10b981;">${availableCount}</div>
+                    <div class="label" style="color: #059669;">✅ Available</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
+                    <div class="number" style="color: #f59e0b;">${pendingCount + redemptionCount}</div>
+                    <div class="label" style="color: #d97706;">⏳ Backorder</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);">
+                    <div class="number" style="color: #8b5cf6;">${auctionCount}</div>
+                    <div class="label" style="color: #7c3aed;">🔨 Auction</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);">
+                    <div class="number" style="color: #ef4444;">${registeredCount}</div>
+                    <div class="label" style="color: #dc2626;">🔒 Registered</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">${totalDomainsFinal}/${totalDomainsFinal}</div>
+                    <div class="label">Đã Check HẾT ✅</div>
+                </div>
+            `;
+            document.getElementById('resultsStats').innerHTML = statsHtml;
+
+            // Download button
+            if (data.excel_file) {
+                document.getElementById('downloadSection').innerHTML = `
+                    <a href="/api/download/${data.excel_file}" class="download-btn">
+                        📥 Download Excel File
+                    </a>
+                `;
+            }
+
+            // Display domains
+            renderDomainsList(domains);
+
+            // Scroll to results
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // RENDER DOMAINS LIST (dùng chung cho real-time và final results)
+        function renderDomainsList(domains) {
+            if (domains.length === 0) {
+                document.getElementById('domainsList').innerHTML = `
+                    <div class="alert alert-warning">
+                        Không tìm thấy domain nào phù hợp. Thử giảm DR tối thiểu hoặc tăng số lượng check.
+                    </div>
+                `;
+            } else {
+                const domainsHtml = domains.map((domain, index) => {
+                    // Safety checks for data
+                    const dr = domain.domain_rating || 0;
+                    const ur = domain.url_rating || 0;
+                    const trafficRaw = domain.organic_traffic || 0;
+                    const backlinks = domain.backlinks || 0;
+                    const refDomains = domain.referring_domains || 0;
+                    const snapshots = domain.snapshot_count || 0;
+                    const age = domain.age_years || 'N/A';
+                    const firstArchive = domain.first_archive || 'N/A';
+                    const price = domain.price || 'N/A';
+                    const isAvailable = domain.available || false;
+                    const whoisStatus = domain.whois_status || 'N/A';
+                    const statusType = domain.status_type || 'registered';
+                    const statusNote = domain.status_note || '';
+                    const actionType = domain.action_type || 'contact';
+                    const actionUrl = domain.purchase_url || '#';
+
+                    // Format traffic: Hiển thị số thập phân
+                    let trafficDisplay;
+                    if (trafficRaw > 0 && trafficRaw < 1) {
+                        trafficDisplay = trafficRaw.toFixed(2); // Hiển thị 2 số thập phân
+                    } else if (trafficRaw >= 1) {
+                        trafficDisplay = Math.round(trafficRaw).toLocaleString();
+                    } else {
+                        trafficDisplay = '0';
+                    }
+
+                    // Status badge color theo STATUS TYPE
+                    let statusColor, statusBg, borderColor;
+                    if (statusType === 'available') {
+                        statusColor = '#10b981';  // Green
+                        statusBg = '#d1fae5';
+                        borderColor = '#10b981';
+                    } else if (statusType === 'pending_delete' || statusType === 'redemption') {
+                        statusColor = '#f59e0b';  // Orange
+                        statusBg = '#fef3c7';
+                        borderColor = '#f59e0b';
+                    } else if (statusType === 'auction') {
+                        statusColor = '#8b5cf6';  // Purple
+                        statusBg = '#ede9fe';
+                        borderColor = '#8b5cf6';
+                    } else {
+                        statusColor = '#ef4444';  // Red
+                        statusBg = '#fee2e2';
+                        borderColor = '#ef4444';
+                    }
+
+                    return `
+                    <div class="domain-card" style="border-left: 5px solid ${borderColor};">
+                        <!-- HEADER: DOMAIN + STATUS + BUTTON -->
+                        <div class="domain-header">
+                            <div class="domain-name">${domain.domain}</div>
+                            <span style="display: inline-block; padding: 8px 16px; background: ${statusBg}; color: ${statusColor}; border-radius: 20px; font-weight: bold; font-size: 0.9em; white-space: nowrap; margin: 0 10px;">
+                                ${whoisStatus}
+                            </span>
+                            ${(() => {
+                                if (actionType === 'buy') {
+                                    return `<a href="${actionUrl}" target="_blank" class="buy-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                                        🛒 Mua Ngay
+                                    </a>`;
+                                } else if (actionType === 'backorder') {
+                                    return `<a href="${actionUrl}" target="_blank" class="buy-btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                                        📥 Backorder
+                                    </a>`;
+                                } else if (actionType === 'auction') {
+                                    return `<a href="${actionUrl}" target="_blank" class="buy-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                                        🔨 Đấu Giá
+                                    </a>`;
+                                } else {
+                                    return `<a href="${actionUrl}" target="_blank" class="buy-btn" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                                        💬 Liên Hệ
+                                    </a>`;
+                                }
+                            })()}
+                        </div>
+
+                        <!-- RANK + STATUS NOTE -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <div class="domain-rank">#${index + 1}</div>
+                            ${statusNote ? `<div style="font-size: 0.85em; color: #6b7280; font-style: italic; flex: 1; text-align: right; margin-left: 10px;">${statusNote}</div>` : ''}
+                        </div>
+
+                        <!-- TRAFFIC - HIGHLIGHT -->
+                        <div style="text-align: center; padding: 10px 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; margin-bottom: 15px;">
+                            <div style="font-size: 1.5em; font-weight: bold; color: white; word-break: break-word;">
+                                ${trafficDisplay}
+                            </div>
+                            <div style="color: rgba(255,255,255,0.85); font-size: 0.85em; margin-top: 3px;">
+                                Traffic/tháng
+                            </div>
+                        </div>
+
+                        <div class="domain-metrics">
+                            <div class="metric">
+                                <div class="metric-value">${dr}</div>
+                                <div class="metric-label">DR (Domain Rating)</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">${ur}</div>
+                                <div class="metric-label">UR (URL Rating)</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">${backlinks.toLocaleString()}</div>
+                                <div class="metric-label">Backlinks</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">${refDomains.toLocaleString()}</div>
+                                <div class="metric-label">Ref Domains</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">${snapshots.toLocaleString()}</div>
+                                <div class="metric-label">Snapshots</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">${age}</div>
+                                <div class="metric-label">Tuổi</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">${firstArchive}</div>
+                                <div class="metric-label">First Archive</div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+
+                document.getElementById('domainsList').innerHTML = domainsHtml;
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('searchBtn').disabled = false;
+            document.getElementById('searchBtn').textContent = '🚀 Bắt Đầu Check DR (Bước 3)';
+        }
+    </script>
+</body>
+</html>
