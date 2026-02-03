@@ -882,6 +882,18 @@
             document.getElementById('resultsSubtitle').textContent =
                 `⚡ Đang tìm... ${domains.length}/${totalDomains} domains CÓ GIÁ TRỊ (Real-time) 🚀`;
 
+            // Show download button NGAY khi có excel_file (real-time)
+            if (data.excel_file && domains.length > 0) {
+                document.getElementById('downloadSection').innerHTML = `
+                    <a href="/api/download/${data.excel_file}" class="download-btn">
+                        📥 Download Excel File (${domains.length} domains - Real-time)
+                    </a>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                        ⚡ File đang cập nhật real-time - Có thể tải về bất cứ lúc nào!
+                    </p>
+                `;
+            }
+
             // Stats - count by traffic and status type
             const withTraffic = domains.filter(d => (d.organic_traffic || 0) > 0).length;
             const withoutTraffic = domains.length - withTraffic;
@@ -985,8 +997,11 @@
             if (data.excel_file) {
                 document.getElementById('downloadSection').innerHTML = `
                     <a href="/api/download/${data.excel_file}" class="download-btn">
-                        📥 Download Excel File
+                        📥 Download Excel File (${domains.length} domains)
                     </a>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                        ✅ File hoàn tất - Tất cả ${domains.length} domains đã được lưu vào Excel!
+                    </p>
                 `;
             }
 

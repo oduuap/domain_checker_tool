@@ -18,7 +18,7 @@ import dns.resolver
 import requests
 import re
 from typing import Dict, List, Optional
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
 from bs4 import BeautifulSoup
@@ -42,8 +42,12 @@ search_progress = {
     'total': 0,
     'message': '',
     'domains_found': [],
-    'current_domain': ''
+    'current_domain': '',
+    'excel_file': None
 }
+
+# Lock for thread-safe Excel writing
+excel_write_lock = Lock()
 
 class DomainChecker:
     def __init__(self, rapidapi_key=None, c99_api_key=None):
@@ -459,6 +463,9 @@ def search_domains_background(keywords, tlds, max_check, min_dr, search_id, mode
         search_progress['total'] = len(domains_to_check)
         search_progress['message'] = f'Sẽ kiểm tra {len(domains_to_check)} domains...'
 
+        # Initialize Excel file - REAL-TIME
+        init_realtime_excel(search_id)
+
         # Check từng domain - PARALLEL MODE
         found_domains = []
         found_domains_lock = Lock()  # Thread-safe access
@@ -568,6 +575,9 @@ def search_domains_background(keywords, tlds, max_check, min_dr, search_id, mode
                                 # GÁN COPY đã sort để frontend hiển thị đúng thứ tự
                                 search_progress['domains_found'] = list(found_domains)
 
+                                # APPEND TO EXCEL REAL-TIME
+                                append_domain_to_excel(result, len(found_domains), search_id)
+
                             print(f"[{idx}/{len(domains_to_check)}] ✅ {domain} - DR:{result['domain_rating']}, Traffic:{result['organic_traffic']}")
                         else:
                             print(f"[{idx}/{len(domains_to_check)}] ⏭️  {domain} - Skipped")
@@ -669,18 +679,90 @@ def search_domains_background(keywords, tlds, max_check, min_dr, search_id, mode
         print(f"  - DR < {min_dr}: {skipped_low_dr}")
         print(f"{'='*70}\n")
 
-        # Export Excel
+        # Excel already exported in real-time - No need to export again
         if found_domains:
-            export_to_excel(found_domains, search_id)
-            print(f"✅ Excel exported: results_{search_id}.xlsx\n")
+            print(f"✅ Excel exported in real-time: results_{search_id}.xlsx ({len(found_domains)} domains)\n")
 
     except Exception as e:
         search_progress['status'] = 'error'
         search_progress['message'] = f'Lỗi: {str(e)}'
 
 
+def init_realtime_excel(search_id: str):
+    """Khởi tạo file Excel với headers - REAL-TIME MODE"""
+    try:
+        with excel_write_lock:
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Expired Domains"
+
+            # Headers
+            headers = ["#", "Domain", "DR", "UR", "Traffic", "Backlinks", "Ref Domains",
+                       "Snapshots", "First Archive", "Age (Years)", "Status", "Price", "Purchase URL"]
+
+            # Style headers
+            header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+            header_font = Font(bold=True, color="FFFFFF", size=11)
+
+            for col, header in enumerate(headers, 1):
+                cell = ws.cell(row=1, column=col)
+                cell.value = header
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+
+            # Auto-adjust column widths
+            for col in range(1, len(headers) + 1):
+                ws.column_dimensions[get_column_letter(col)].width = 15
+
+            # Save empty file
+            filename = f"results_{search_id}.xlsx"
+            filepath = os.path.join('static', filename)
+            os.makedirs('static', exist_ok=True)
+            wb.save(filepath)
+
+            search_progress['excel_file'] = filename
+            print(f"✅ Excel file initialized: {filename}")
+
+    except Exception as e:
+        print(f"Error initializing Excel: {e}")
+
+
+def append_domain_to_excel(domain_data: Dict, row_number: int, search_id: str):
+    """Append 1 domain vào Excel file - REAL-TIME"""
+    try:
+        with excel_write_lock:
+            filename = f"results_{search_id}.xlsx"
+            filepath = os.path.join('static', filename)
+
+            # Load existing workbook
+            wb = load_workbook(filepath)
+            ws = wb.active
+
+            # Append data
+            ws.cell(row=row_number+1, column=1, value=row_number)
+            ws.cell(row=row_number+1, column=2, value=domain_data['domain'])
+            ws.cell(row=row_number+1, column=3, value=domain_data['domain_rating'])
+            ws.cell(row=row_number+1, column=4, value=domain_data['url_rating'])
+            ws.cell(row=row_number+1, column=5, value=domain_data['organic_traffic'])
+            ws.cell(row=row_number+1, column=6, value=domain_data['backlinks'])
+            ws.cell(row=row_number+1, column=7, value=domain_data['referring_domains'])
+            ws.cell(row=row_number+1, column=8, value=domain_data['snapshot_count'])
+            ws.cell(row=row_number+1, column=9, value=domain_data['first_archive'])
+            ws.cell(row=row_number+1, column=10, value=domain_data['age_years'])
+            ws.cell(row=row_number+1, column=11, value=domain_data.get('whois_status', 'N/A'))
+            ws.cell(row=row_number+1, column=12, value=domain_data['price'])
+            ws.cell(row=row_number+1, column=13, value=domain_data['purchase_url'])
+
+            # Save
+            wb.save(filepath)
+
+    except Exception as e:
+        print(f"Error appending to Excel: {e}")
+
+
 def export_to_excel(results: List[Dict], search_id: str):
-    """Export kết quả ra Excel"""
+    """Export kết quả ra Excel - LEGACY (giữ lại cho backward compatibility)"""
     try:
         wb = Workbook()
         ws = wb.active
@@ -688,7 +770,7 @@ def export_to_excel(results: List[Dict], search_id: str):
 
         # Headers
         headers = ["#", "Domain", "DR", "UR", "Traffic", "Backlinks", "Ref Domains",
-                   "Snapshots", "First Archive", "Age (Years)", "Price", "Purchase URL"]
+                   "Snapshots", "First Archive", "Age (Years)", "Status", "Price", "Purchase URL"]
 
         # Style headers
         header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
@@ -713,8 +795,9 @@ def export_to_excel(results: List[Dict], search_id: str):
             ws.cell(row=idx+1, column=8, value=domain_data['snapshot_count'])
             ws.cell(row=idx+1, column=9, value=domain_data['first_archive'])
             ws.cell(row=idx+1, column=10, value=domain_data['age_years'])
-            ws.cell(row=idx+1, column=11, value=domain_data['price'])
-            ws.cell(row=idx+1, column=12, value=domain_data['purchase_url'])
+            ws.cell(row=idx+1, column=11, value=domain_data.get('whois_status', 'N/A'))
+            ws.cell(row=idx+1, column=12, value=domain_data['price'])
+            ws.cell(row=idx+1, column=13, value=domain_data['purchase_url'])
 
         # Auto-adjust column widths
         for col in range(1, len(headers) + 1):
