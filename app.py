@@ -116,12 +116,12 @@ class DomainChecker:
                     result['action_url'] = f'https://auctions.godaddy.com/trp/search?q={domain}'
 
                 else:
-                    # REGISTERED (OK) - Bình thường, không mua được
+                    # REGISTERED (OK) - Bình thường, không mua được - Có thể Make Offer
                     result['status'] = 'Registered'
                     result['status_type'] = 'registered'
                     result['status_badge'] = '🔒 Registered'
-                    result['status_note'] = 'Đã có chủ - Liên hệ để mua'
-                    result['action_type'] = 'contact'
+                    result['status_note'] = 'Đã có chủ - Có thể đặt giá'
+                    result['action_type'] = 'make_offer'
                     result['action_url'] = f'https://www.namecheap.com/domains/registration/results/?domain={domain}'
 
                 # Creation date & age

@@ -1077,25 +1077,34 @@
                             <span style="display: inline-block; padding: 8px 16px; background: ${statusBg}; color: ${statusColor}; border-radius: 20px; font-weight: bold; font-size: 0.9em; white-space: nowrap; margin: 0 10px;">
                                 ${whoisStatus}
                             </span>
-                            ${(() => {
-                                if (actionType === 'buy') {
-                                    return `<a href="${actionUrl}" target="_blank" class="buy-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                                        🛒 Mua Ngay
-                                    </a>`;
-                                } else if (actionType === 'backorder') {
-                                    return `<a href="${actionUrl}" target="_blank" class="buy-btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-                                        📥 Backorder
-                                    </a>`;
-                                } else if (actionType === 'auction') {
-                                    return `<a href="${actionUrl}" target="_blank" class="buy-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
-                                        🔨 Đấu Giá
-                                    </a>`;
-                                } else {
-                                    return `<a href="${actionUrl}" target="_blank" class="buy-btn" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
-                                        💬 Liên Hệ
-                                    </a>`;
-                                }
-                            })()}
+                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                ${(() => {
+                                    if (actionType === 'buy') {
+                                        return `<a href="${actionUrl}" target="_blank" class="buy-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                                            🛒 Add to Cart
+                                        </a>`;
+                                    } else if (actionType === 'backorder') {
+                                        return `<a href="${actionUrl}" target="_blank" class="buy-btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                                            📥 Backorder
+                                        </a>`;
+                                    } else if (actionType === 'auction') {
+                                        return `<a href="${actionUrl}" target="_blank" class="buy-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                                            🔨 Đấu Giá
+                                        </a>`;
+                                    } else if (actionType === 'make_offer') {
+                                        return `<a href="${actionUrl}" target="_blank" class="buy-btn" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                                            💰 Make Offer
+                                        </a>`;
+                                    } else {
+                                        return `<a href="${actionUrl}" target="_blank" class="buy-btn" style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);">
+                                            💬 Liên Hệ
+                                        </a>`;
+                                    }
+                                })()}
+                                <button onclick="copyDomain('${domain.domain}')" class="buy-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                    📋 Copy
+                                </button>
+                            </div>
                         </div>
 
                         <!-- RANK + STATUS NOTE -->
@@ -1156,6 +1165,63 @@
             document.getElementById('searchBtn').disabled = false;
             document.getElementById('searchBtn').textContent = '🚀 Bắt Đầu Check DR (Bước 3)';
         }
+
+        // Copy domain name to clipboard
+        function copyDomain(domainName) {
+            navigator.clipboard.writeText(domainName).then(() => {
+                // Show success notification
+                const notification = document.createElement('div');
+                notification.textContent = `✓ Đã copy: ${domainName}`;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                    color: white;
+                    padding: 15px 25px;
+                    border-radius: 10px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                    z-index: 10000;
+                    font-weight: 600;
+                    animation: slideIn 0.3s ease-out;
+                `;
+                document.body.appendChild(notification);
+
+                // Remove after 2 seconds
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease-out';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 2000);
+            }).catch(err => {
+                alert('Không thể copy: ' + err);
+            });
+        }
     </script>
+
+    <style>
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    </style>
 </body>
 </html>
